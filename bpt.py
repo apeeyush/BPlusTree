@@ -43,7 +43,10 @@ class Node:
 		print self.children
 		print self.is_leaf
 		print self.filename
-		print self.next
+		if self.is_leaf:
+			print self.next
+		else:
+			print 'None'
 
 	def updateNode(self):
 		self.write_data_to_file(self.filename)
@@ -51,7 +54,10 @@ class Node:
 	def splitNode(self):
 		global filecounter
 		newNode = Node()
+		newNode.filename = str(filecounter)
+		filecounter = filecounter+1
 		if self.is_leaf:
+			newNode.is_leaf = True
 			mid = len(self.keys)/2
 			midKey = self.keys[mid]
 			# Update sibling parameters
@@ -60,7 +66,11 @@ class Node:
 			# Update node parameters
 			self.keys = self.keys[:mid]
 			self.children = self.children[:mid]
+			# Update next node pointers
+			newNode.next = self.next
+			self.next = newNode.filename
 		else:
+			newNode.is_leaf = False
 			mid = len(self.keys)/2
 			midKey = self.keys[mid]
 			# Update sibling parameters
@@ -69,11 +79,6 @@ class Node:
 			# Update node parameters
 			self.keys = self.keys[:mid]
 			self.children = self.children[:mid + 1]
-		newNode.is_leaf = True
-		newNode.filename = str(filecounter)
-		newNode.next = self.next
-		self.next = newNode.filename
-		filecounter = filecounter+1
 		self.updateNode()
 		newNode.updateNode()
 		return midKey, newNode
@@ -92,9 +97,6 @@ class BPlusTree:
 		filecounter += 1
 		self.root.updateNode()
 
-	def add_key(self, key):
-		pass
-
 	def search(self, key):
 		return self.tree_search(key, self.root)
 
@@ -109,6 +111,53 @@ class BPlusTree:
 					return self.tree_search(key, Node(node.children[i+1]))
 			if key >= node.keys[-1]:
 				return self.tree_search(key, Node(node.children[-1]))
+
+	def tree_search_for_query(self, key, node):
+		if node.is_leaf:
+			return node
+		else:
+			if key <= node.keys[0]:
+				return self.tree_search(key, Node(node.children[0]))
+			for i in range(len(node.keys)-1):
+				if key>node.keys[i] and key<=node.keys[i+1]:
+					return self.tree_search(key, Node(node.children[i+1]))
+			if key > node.keys[-1]:
+				return self.tree_search(key, Node(node.children[-1]))
+
+	def point_query(self, key):
+		all_values = []
+		start_leaf = self.tree_search_for_query(key, self.root)
+		values, next_node = self.get_values_in_key_range(key, key, start_leaf)
+		all_values += values
+		while next_node:
+			values, next_node = self.get_values_in_key_range(key, key, Node(next_node.filename))
+			all_values += values
+		return all_values
+
+	def range_query(self, keyMin, keyMax):
+		all_values = []
+		start_leaf = self.tree_search_for_query(keyMin, self.root)
+		values, next_node = self.get_values_in_key_range(keyMin, keyMax, start_leaf)
+		all_values += values
+		while next_node:
+			values, next_node = self.get_values_in_key_range(keyMin, keyMax, Node(next_node.filename))
+			all_values += values
+		return all_values
+
+	def get_values_in_key_range(self, keyMin, keyMax, node):
+		values = []
+		for i in range(len(node.keys)):
+			key = node.keys[i]
+			if keyMin <= key and key <= keyMax:
+				values.append(self.read_data_file(node.children[i]))
+		if node.keys[-1] > keyMax:
+			next_node = None
+		else:
+			if node.next:
+				next_node = Node(node.next)
+			else:
+				next_node = None
+		return values, next_node
 
 	def insert(self, key, value):
 		ans, newFilename =  self.tree_insert(key, value, self.root)
@@ -156,10 +205,8 @@ class BPlusTree:
 				ans, newFilename = self.tree_insert(key, value, Node(node.children[-1]))
 		if ans:
 			index = bisect.bisect(node.keys, ans)
-			print index
 			node.keys[index:index] = [key]
 			node.children[index+1:index+1] = [newFilename]
-			node.printContent()
 			if len(node.keys) <= self.factor-1:
 				node.updateNode()
 				return None, None
@@ -171,16 +218,40 @@ class BPlusTree:
 
 	def create_data_file(self, value):
 		global filecounter
-		filename = 'data/'+str(filecounter)
-		with open(filename, 'w') as f:
+		filename = str(filecounter)
+		filepath = 'data/'+filename
+		with open(filepath, 'w') as f:
 			f.write(str(value))
 		filecounter += 1
 		return filename
 
+	def read_data_file(self, filename):
+		filepath = 'data/'+filename
+		lines = [line.strip() for line in open(filepath)]
+		return lines[0].strip()
+
 if __name__ == '__main__':
 	filecounter=11
 	tree = BPlusTree(4)
-	tree.insert(0.33,111)
-	tree.insert(0.33,111)
-	tree.insert(0.33,111)
-	tree.insert(0.33,111)
+	tree.insert(0.31,111)
+	tree.insert(0.33,113)
+	tree.insert(0.33,115)
+	tree.insert(0.39,119)
+	tree.insert(0.33,119)
+	tree.insert(0.31,111)
+	tree.insert(0.33,113)
+	tree.insert(0.33,115)
+	tree.insert(0.39,119)
+	tree.insert(0.33,119)
+	tree.insert(0.31,111)
+	tree.insert(0.33,113)
+	tree.insert(0.33,115)
+	tree.insert(0.39,119)
+	tree.insert(0.33,119)
+	tree.insert(0.31,111)
+	tree.insert(0.33,113)
+	tree.insert(0.33,115)
+	tree.insert(0.39,119)
+	tree.insert(0.33,119)
+	print tree.range_query(0.31,0.39)
+	print tree.root.filename
