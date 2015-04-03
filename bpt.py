@@ -117,12 +117,12 @@ class BPlusTree:
 			return node
 		else:
 			if key <= node.keys[0]:
-				return self.tree_search(key, Node(node.children[0]))
+				return self.tree_search_for_query(key, Node(node.children[0]))
 			for i in range(len(node.keys)-1):
 				if key>node.keys[i] and key<=node.keys[i+1]:
-					return self.tree_search(key, Node(node.children[i+1]))
+					return self.tree_search_for_query(key, Node(node.children[i+1]))
 			if key > node.keys[-1]:
-				return self.tree_search(key, Node(node.children[-1]))
+				return self.tree_search_for_query(key, Node(node.children[-1]))
 
 	def point_query(self, key):
 		all_values = []
@@ -205,7 +205,7 @@ class BPlusTree:
 				ans, newFilename = self.tree_insert(key, value, Node(node.children[-1]))
 		if ans:
 			index = bisect.bisect(node.keys, ans)
-			node.keys[index:index] = [key]
+			node.keys[index:index] = [ans]
 			node.children[index+1:index+1] = [newFilename]
 			if len(node.keys) <= self.factor-1:
 				node.updateNode()
@@ -232,26 +232,33 @@ class BPlusTree:
 
 if __name__ == '__main__':
 	filecounter=11
-	tree = BPlusTree(4)
-	tree.insert(0.31,111)
-	tree.insert(0.33,113)
-	tree.insert(0.33,115)
-	tree.insert(0.39,119)
-	tree.insert(0.33,119)
-	tree.insert(0.31,111)
-	tree.insert(0.33,113)
-	tree.insert(0.33,115)
-	tree.insert(0.39,119)
-	tree.insert(0.33,119)
-	tree.insert(0.31,111)
-	tree.insert(0.33,113)
-	tree.insert(0.33,115)
-	tree.insert(0.39,119)
-	tree.insert(0.33,119)
-	tree.insert(0.31,111)
-	tree.insert(0.33,113)
-	tree.insert(0.33,115)
-	tree.insert(0.39,119)
-	tree.insert(0.33,119)
-	print tree.range_query(0.31,0.39)
-	print tree.root.filename
+	tree = BPlusTree(5)
+	lines = [line.strip() for line in open('data.txt')]	# assgn2_bplus_data.txt
+	keys = []
+	for line in lines:
+		line = line.split()
+		key = float(line[0].strip())
+		value = line[1].strip()
+		if key in keys:
+			print key
+		keys.append(key)
+		tree.insert(key, value)
+	lines = [line.strip() for line in open('querysample.txt')]
+	for line in lines:
+		line = line.split()
+		operation = int(line[0].strip())
+		if operation == 0:			# Insertion
+			key = float(line[1].strip())
+			value = line[2].strip()
+			tree.insert(key, value)
+		elif operation == 1:		# Point Query
+			key = float(line[1].strip())
+			print 'searching', key
+			print len(tree.point_query(key))
+		elif operation == 2:		# Range Query
+			center = float(line[1].strip())
+			qrange = float(line[2].strip())
+			keyMin = center-qrange
+			keyMax = center+qrange
+			print 'ranging', keyMin, keyMax
+			print len(tree.range_query(keyMin, keyMax))
