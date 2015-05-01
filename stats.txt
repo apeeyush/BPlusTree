@@ -1,0 +1,33 @@
+Insert time statistics..
+Min : 0.000185
+Max : 0.002145
+Mean: 0.000460658
+STD : 0.000242017844458
+Insert disk statistics..
+Min : 5
+Max : 10
+Mean: 5.135
+STD : 0.645581133553
+
+Search time statistics..
+Min : 6.89999999999e-05
+Max : 0.001185
+Mean: 0.00024187
+STD : 0.00014892655606
+Search disk statistics..
+Min : 3
+Max : 8
+Mean: 3.947
+STD : 1.08452339763
+
+Range time statistics..
+Min : 0.000116999999999
+Max : 0.030427
+Mean: 0.007996746
+STD : 0.00671312285717
+Range disk statistics..
+Min : 3
+Max : 263
+Mean: 116.646
+STD : 65.4451272747
+
