@@ -1,56 +1,67 @@
-########## B+ Tree ##########
+# B+ Tree
 
 ## Inserting data in a B+ Tree
 
 To insert data in a B+ tree run:
->>	python bpt.py insert <filename>
-The default argument for filename is assgn2_bplus_data.txt
+
+	python bpt.py insert <filename>
+
+The default argument for filename is `assgn2_bplus_data.txt`
+
 Example:
->>	python bpt.py insert assgn2_bplus_data.txt
+
+	python bpt.py insert assgn2_bplus_data.txt
+
 The tree is saved on running this query (the insert queries are persistent).
--- The corresponding data is stored in data/
--- The corresponding configs are stored in .bplustree
+- The corresponding data is stored in data/
+- The corresponding configs are stored in .bplustree
 
 ## Querying a B+ Tree
 
 To run the queries on the B+ tree, run
->>	python query <filename>
-The default argument for filename is querysample.txt
+
+	python query <filename>
+
+The default argument for filename is `querysample.txt`
+
 Example:
->>	python query querysample.txt
+
+	python query querysample.txt
+
 The tree is saved on running this query (the insert queries are persistent).
--- The corresponding data is stored in data/
--- The corresponding configs are stored in .bplustree
+- The corresponding data is stored in data/
+- The corresponding configs are stored in .bplustree
 
 ## Deleting the tree
 
 To delete/destroy the tree and all it's node, run
+
 	make clean
+
 The tree is deleted by this query and a frest tree is created for new queries.
 
 
 
 ## Output
 
-The query qutput is displayed on std. output. It can be stored in a file using '>'.
-Example:
->>	python query querysample.txt > out
+The query qutput is displayed on std. output. It can be stored in a file using '>'. Example:
+
+	python query querysample.txt > out
 
 The output format is as follows:
 
-# Insert Query
+### Insert Query
 The output contains "insert:" followed by key and value
 	insert: key value
 
-# Search Query
+### Search Query
 The output contains "search:" folloed by key
 The corresponding values are printed in next line seperated by ','.
 If no values are found, "Not Found" is printed.
 
-# Range Query
+### Range Query
 The output contains "range:"
 The following line contains a list of tuples where each tuple represents a (key, value) pair.
-
 
 
 ## Statistics
